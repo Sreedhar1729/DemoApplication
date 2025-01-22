@@ -3,91 +3,135 @@ ID: EmployeesProject
 description: A simple CAP project.
 version: 1.0.0
 modules:
-  - name: EmployeesProject-srv
-    type: nodejs
-    path: gen/srv
-    requires:
-      - name: EmployeesProject-db
-    provides:
-      - name: srv-api
-        properties:
-          srv-url: ${default-url}
+- name: EmployeesProject-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: EmployeesProject-db
+  - name: uaa_EmployeesProject
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+    readiness-health-check-http-endpoint: /health
+    readiness-health-check-type: http
+  build-parameters:
+    builder: npm
+- name: EmployeesProject-db-deployer
+  type: hdb
+  path: gen/db
+  requires:
+  - name: EmployeesProject-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: EmployeesProject-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: EmployeesProject-destination-service
     parameters:
-      buildpack: nodejs_buildpack
-      readiness-health-check-http-endpoint: /health
-      readiness-health-check-type: http
-    build-parameters:
-      builder: npm
-  - name: EmployeesProject-db-deployer
-    type: hdb
-    path: gen/db
-    requires:
-      - name: EmployeesProject-db
+      content-target: true
+  - name: EmployeesProject_html_repo_host
     parameters:
-      buildpack: nodejs_buildpack
-  - name: EmployeesProject-destination-content
-    type: com.sap.application.content
-    requires:
-      - name: EmployeesProject-destination-service
-        parameters:
-          content-target: true
-      - name: EmployeesProject_html_repo_host
-        parameters:
-          service-key:
-            name: EmployeesProject_html_repo_host-key
-      - name: uaa_EmployeesProject
-        parameters:
-          service-key:
-            name: uaa_EmployeesProject-key
+      service-key:
+        name: EmployeesProject_html_repo_host-key
+  - name: uaa_EmployeesProject
     parameters:
-      content:
+      service-key:
+        name: uaa_EmployeesProject-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: EmployeesProject_EmployeesProject_html_repo_host
+          ServiceInstanceName: EmployeesProject-html5-app-host-service
+          ServiceKeyName: EmployeesProject_html_repo_host-key
+          sap.cloud.service: EmployeesProject
+        - Authentication: OAuth2UserTokenExchange
+          Name: EmployeesProject_uaa_EmployeesProject
+          ServiceInstanceName: EmployeesProject-xsuaa-service
+          ServiceKeyName: uaa_EmployeesProject-key
+          sap.cloud.service: EmployeesProject
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: EmployeesProject-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: EmployeesProject_html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - comsapemployeeproject.zip
+      name: comsapemployeeproject
+      target-path: resources/
+- name: comsapemployeeproject
+  type: html5
+  path: app/employeeproject
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: EmployeesProject-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    service: hana
+    service-plan: hdi-shared
+- name: EmployeesProject-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
         instance:
           destinations:
-            - Name: EmployeesProject_EmployeesProject_html_repo_host
-              ServiceInstanceName: EmployeesProject-html5-app-host-service
-              ServiceKeyName: EmployeesProject_html_repo_host-key
-              sap.cloud.service: EmployeesProject
-            - Authentication: OAuth2UserTokenExchange
-              Name: EmployeesProject_uaa_EmployeesProject
-              ServiceInstanceName: EmployeesProject-xsuaa-service
-              ServiceKeyName: uaa_EmployeesProject-key
-              sap.cloud.service: EmployeesProject
-          existing_destinations_policy: ignore
-    build-parameters:
-      no-source: true
-resources:
-  - name: EmployeesProject-db
-    type: com.sap.xs.hdi-container
-    parameters:
-      service: hana
-      service-plan: hdi-shared
-  - name: EmployeesProject-destination-service
-    type: org.cloudfoundry.managed-service
-    parameters:
-      config:
-        HTML5Runtime_enabled: true
-        version: 1.0.0
-      service: destination
-      service-name: EmployeesProject-destination-service
-      service-plan: lite
-  - name: EmployeesProject_html_repo_host
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: html5-apps-repo
-      service-name: EmployeesProject-html5-app-host-service
-      service-plan: app-host
-  - name: uaa_EmployeesProject
-    type: org.cloudfoundry.managed-service
-    parameters:
-      path: ./xs-security.json
-      service: xsuaa
-      service-name: EmployeesProject-xsuaa-service
-      service-plan: application
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: EmployeesProject-srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: EmployeesProject-destination-service
+    service-plan: lite
+  requires:
+  - name: srv-api
+- name: EmployeesProject_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: EmployeesProject-html5-app-host-service
+    service-plan: app-host
+- name: uaa_EmployeesProject
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: EmployeesProject-xsuaa-service
+    service-plan: application
 parameters:
+  deploy_mode: html5-repo
   enable-parallel-deployments: true
 build-parameters:
   before-all:
-    - builder: custom
-      commands:
-        - npm ci
-        - npx cds build --production
+  - builder: custom
+    commands:
+    - npm ci
+    - npx cds build --production
