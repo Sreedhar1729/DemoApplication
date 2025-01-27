@@ -5,8 +5,7 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageBox",
-    "sap/m/MessageToast",
-    
+    "sap/m/MessageToast"
 ], (Controller, JSONModel, MessageBox, MessageToast) => {
     "use strict";
 
@@ -130,90 +129,20 @@ sap.ui.define([
         onUpdate(){
             let sPath=this.byId("table").getSelectedItem().getBindingContext().getPath();
             let oPayload = this.getView().getModel("EmployeeModel").getProperty("/");
-             
             let oModel = this.getView().getModel();
-
-
             oModel.update(sPath,oPayload,{
                 success: function (odata) {
                     MessageToast.show("Successfully updated");
                     this.byId("table").getBinding("items").refresh();
                     this.onUpdateCancel();
-                }.bind(this),
-                 error: function (oError) {
+                }.bind(this), error: function (oError) {
                     MessageBox.warning("Error Occurs");
                     this.byId("table").getBinding("items").refresh();
                     this. onUpdateCancel();
                 }
             })
 
-        },
-
-        // onChangeDP: function (oEvent) {
-        //     // Get File
-        //     var that = this;
-        //     var image = new Image();
-        //     var file = oEvent.getParameter("files")[0];
-        //     var reader = new FileReader();
-        //     reader.readAsDataURL(file);
-        //     reader.onload = function () {
-        //         var data = reader.result;
-        //         //Set the Base64 string return from FileReader as text area value.
-        //         that.byId("idBase64Area").setValue(data);
-        //         image.onload = function () {
-        //             //	Check if image is bad/invalid
-        //             if (this.width + this.height === 0) {
-        //                 that.dpImage = "";
-        //                 sap.m.MessageBox.error("Invalid Image!");
-        //             }
-        //         };
-        //     };
-        //     reader.onerror = function (error) {
-        //         //Error Handling
-        //     };
-        // }
-        onChangeDP: function (oEvent) {
-            var base64Data = this.byId("idBase64Area").getValue();
-            this.byId("idDP").setSrc(base64Data);
-        },
-        onFileChange: function (oEvent) {
-            var that = this;
-            var file = oEvent.getParameter("files")[0]; // Get the uploaded file
-
-            if (file) {
-                var reader = new FileReader(); // Create a FileReader object
-
-                reader.onload = function (e) {
-                    var pdfData = e.target.result; // Get the Base64 string
-                    
-                    // Convert Base64 string to Blob
-                    var byteCharacters = atob(pdfData.split(',')[1]);
-                    var byteNumbers = new Array(byteCharacters.length);
-                    for (var i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                    }
-                    var byteArray = new Uint8Array(byteNumbers);
-                    var blob = new Blob([byteArray], { type: 'application/pdf' });
-                    var blobUrl = URL.createObjectURL(blob); // Create a Blob URL
-
-                    console.log("Blob URL Created:", blobUrl); // Debugging log
-
-                    // Set the Blob URL as source for PDFViewer
-                    that.byId("pdfViewer").setSource(blobUrl);
-                };
-
-                reader.onerror = function () {
-                    MessageBox.error("Error reading file."); // Error handling
-                };
-
-                reader.readAsDataURL(file); // Read the file as Data URL (Base64)
-            } else {
-                MessageBox.error("No file selected."); // Handle no file selected case
-            }
         }
+
     });
 });
-
-
-
-

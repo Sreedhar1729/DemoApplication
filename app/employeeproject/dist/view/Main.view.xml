@@ -2,12 +2,13 @@
     controllerName="com.sap.employeeproject.controller.Main"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:core="sap.ui.core"
-    core:require="{formatter:'com/sap/employeeproject/model/formatter'}"
-    xmlns:unified="sap.ui.unified"
 >
-
-<Page id="idPage">       
+    <Page
+        id="page"
+        title="{i18n>title}"
+        showHeader="true"
+    >
+        <!-- Table creation -->
         <Table
             id="table"
             items="{/Employees}"
@@ -42,7 +43,7 @@
                 </OverflowToolbar>
             </headerToolbar>
 
-            
+            <!-- Constructing columns -->
             <columns>
                 <Column id="_IDGenColumn1">
                     <Title
@@ -105,17 +106,13 @@
                             id="_IDGenText4"
                             text="{address}"
                         />
-                        <ObjectNumber
+                        <Text
                             id="_IDGenText5"
-                            number="{salary}"
-                            state="{
-                                parts:[{path:'salary'}],
-                                formatter:'formatter.SalaryBase'
-                            }"/>
-            
+                            text="{salary}"
+                        />
                     </cells>
                 </ColumnListItem>
             </items>
         </Table>
-    </Page> 
+    </Page>
 </mvc:View>

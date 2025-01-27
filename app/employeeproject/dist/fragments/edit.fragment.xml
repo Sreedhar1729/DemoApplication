@@ -1,0 +1,64 @@
+<core:FragmentDefinition xmlns:core="sap.ui.core" xmlns="sap.m">
+
+    <Dialog
+        id="EditDialog"
+        title="Create New Employee"
+    >
+        <beginButton>
+            <Button
+                id="_IDGenButton6"
+                text="Save"
+                press="onUpdate"
+                type="Success"
+            />
+        </beginButton>
+        <endButton>
+            <Button
+                id="_IDGenButtonjk"
+                text="Cancel"
+                press="onUpdateCancel"
+                type="Negative"
+            />
+        </endButton>
+
+        <content>
+            <VBox id="_IDGenVBox">
+              <Input id="_IDGenInput10"
+                    visible="false"
+                    value="{EmployeeModel>/ID}"
+                    placeholder="First name"
+                />
+                <Input
+                    id="_IDGenInput"
+                    value="{EmployeeModel>/fname}"
+                    placeholder="First name"
+                />
+                <Input
+                    id="_IDGenInput7"
+                    value="{EmployeeModel>/lname}"
+                    placeholder="Last name"
+                />
+                <Input
+                    id="_IDGenInput8"
+                    value="{EmployeeModel>/mobile}"
+                    placeholder="Mobile"
+                />
+                <Input
+                    id="_IDGenInput9"
+                    value="{EmployeeModel>/email}"
+                    placeholder="Email"
+                />
+                <Input
+                    id="_IDGenInput52"
+                    value="{EmployeeModel>/address}"
+                    placeholder="Address"
+                />
+                <Input
+                    id="_IDGenInput61"
+                    value="{EmployeeModel>/salary}"
+                    placeholder="Salary"
+                />
+            </VBox>
+        </content>
+    </Dialog>
+</core:FragmentDefinition>

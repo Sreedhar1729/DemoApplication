@@ -1,1 +1,9 @@
 /* Enter your custom styles here */
+
+greenText {
+    color: green; /* Text color for true status */
+}
+
+.redText {
+    color: red; /* Text color for false status */
+}

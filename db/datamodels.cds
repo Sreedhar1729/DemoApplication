@@ -10,5 +10,8 @@ define entity Employees : cuid {
     mobile  : String(10) @(title:'Mobile NO');
     email   : name @(title:'E-Mail');
     address : name @(title:'Address');
-    salary  : Decimal(5, 2) @(title:'Salary');
+    salary  :Decimal(5, 2) @(title:'Salary');
 }
+
+
+ 
